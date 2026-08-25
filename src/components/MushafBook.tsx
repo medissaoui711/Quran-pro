@@ -5,6 +5,7 @@ import { QuranPageData, PaperTheme, ViewMode, Ayah } from '../types/quran';
 import { MushafPageView } from './MushafPageView';
 import { toArabicNumerals } from '../services/quranApi';
 import { SURAHS, getJuzForPage } from '../data/quranMetadata';
+import { useQuranSwipe } from '../hooks/useQuranSwipe';
 
 interface MushafBookProps {
   rightPageData: QuranPageData;
@@ -89,6 +90,13 @@ export const MushafBook: React.FC<MushafBookProps> = ({
   const currentJuz = getJuzForPage(currentPage);
   const currentSurah = rightPageData.surahNames[0] || 'الفاتحة';
 
+  // Support touch & mouse swipe on desktop/tablets
+  const swipeHandlers = useQuranSwipe({
+    onNextPage: handleNext,
+    onPrevPage: handlePrev,
+    threshold: 40,
+  });
+
   return (
     <div className="w-full flex flex-col items-center justify-center select-none py-2 px-1 sm:px-4">
       {/* Top Floating Controls Bar in Natural Tones theme */}
@@ -170,7 +178,10 @@ export const MushafBook: React.FC<MushafBookProps> = ({
         </button>
 
         {/* Book Spine / Cover Container with 3D Effect */}
-        <div className="relative w-full book-outer-shadow rounded-lg p-1.5 sm:p-3 bg-[#241a10] border-4 border-[#c5a059] transition-all duration-300">
+        <div 
+          className="relative w-full book-outer-shadow rounded-lg p-1.5 sm:p-3 bg-[#241a10] border-4 border-[#c5a059] transition-all duration-300 touch-pan-y cursor-grab active:cursor-grabbing"
+          {...swipeHandlers}
+        >
           
           {/* Subtle Leather Texture Grain & Stitching */}
           <div className="w-full rounded border border-[#c5a059]/40 overflow-hidden bg-[#1c140d]">

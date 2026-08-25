@@ -15,6 +15,7 @@ import { Ayah, QuranPageData, PaperTheme } from '../../types/quran';
 import { MushafPageView } from '../MushafPageView';
 import { toArabicNumerals } from '../../services/quranApi';
 import { fixArabicText } from '../../services/arabicSanitizer';
+import { useQuranSwipe } from '../../hooks/useQuranSwipe';
 
 interface MobileReaderViewProps {
   pageData: QuranPageData | null;
@@ -49,39 +50,15 @@ export const MobileReaderView: React.FC<MobileReaderViewProps> = ({
   isPageBookmarked,
   onToggleBookmark,
 }) => {
-  const [touchStartX, setTouchStartX] = useState<number | null>(null);
-  const [touchStartY, setTouchStartY] = useState<number | null>(null);
   const [showPagePicker, setShowPagePicker] = useState<boolean>(false);
   const [jumpPageInput, setJumpPageInput] = useState<string>('');
 
-  // Handle Touch Swipe for turning pages (RTL aware)
-  const handleTouchStart = (e: React.TouchEvent) => {
-    setTouchStartX(e.touches[0].clientX);
-    setTouchStartY(e.touches[0].clientY);
-  };
-
-  const handleTouchEnd = (e: React.TouchEvent) => {
-    if (touchStartX === null || touchStartY === null) return;
-    const touchEndX = e.changedTouches[0].clientX;
-    const touchEndY = e.changedTouches[0].clientY;
-
-    const diffX = touchEndX - touchStartX;
-    const diffY = touchEndY - touchStartY;
-
-    // Ensure horizontal swipe is dominant over vertical scroll
-    if (Math.abs(diffX) > 45 && Math.abs(diffX) > Math.abs(diffY)) {
-      if (diffX < 0) {
-        // Swiped Left in RTL -> Next Page (towards page 604)
-        onNextPage();
-      } else {
-        // Swiped Right in RTL -> Prev Page (towards page 1)
-        onPrevPage();
-      }
-    }
-
-    setTouchStartX(null);
-    setTouchStartY(null);
-  };
+  // Unified Touch & Mouse gestures for RTL Quran page turning
+  const swipeHandlers = useQuranSwipe({
+    onNextPage,
+    onPrevPage,
+    threshold: 35,
+  });
 
   const handleJumpSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -99,9 +76,8 @@ export const MobileReaderView: React.FC<MobileReaderViewProps> = ({
 
   return (
     <div
-      className="relative w-full min-h-[calc(100vh-3.5rem)] flex flex-col justify-between select-none overflow-hidden"
-      onTouchStart={handleTouchStart}
-      onTouchEnd={handleTouchEnd}
+      className="relative w-full min-h-[calc(100vh-3.5rem)] flex flex-col justify-between select-none overflow-hidden touch-pan-y"
+      {...swipeHandlers}
       dir="rtl"
     >
       {/* Top Floating Immersive Status Header (Visible especially during Immersive Reading Mode) */}
