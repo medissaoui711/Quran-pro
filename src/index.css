@@ -1,0 +1,156 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --font-quran: 'Amiri Quran', 'Amiri', 'Scheherazade New', serif;
+    --font-uthmani: 'Scheherazade New', 'Amiri Quran', serif;
+    --font-cairo: 'Cairo', sans-serif;
+    --font-reem: 'Reem Kufi', sans-serif;
+  }
+
+  body {
+    font-family: var(--font-cairo);
+  }
+}
+
+.font-quran {
+  font-family: var(--font-quran);
+  font-feature-settings: "cv01" on, "cv02" on, "cv03" on, "calt" on;
+}
+
+.font-uthmani {
+  font-family: var(--font-uthmani);
+  font-feature-settings: "cv01" on, "cv02" on, "cv03" on, "calt" on;
+}
+
+.font-cairo {
+  font-family: var(--font-cairo);
+}
+
+.font-reem {
+  font-family: var(--font-reem);
+}
+
+/* Custom Quran Paper Textures */
+.theme-madinah {
+  --bg-page: #fdfaf3;
+  --bg-page-border: #d4af37;
+  --text-quran: #1c1815;
+  --text-muted: #78644f;
+  --accent-gold: #b38728;
+  --frame-blue: #1b365d;
+}
+
+.theme-sepia {
+  --bg-page: #f4ede1;
+  --bg-page-border: #ba8d42;
+  --text-quran: #2b2118;
+  --text-muted: #826c54;
+  --accent-gold: #a67c2e;
+  --frame-blue: #30261c;
+}
+
+.theme-white {
+  --bg-page: #ffffff;
+  --bg-page-border: #cca43b;
+  --text-quran: #0f172a;
+  --text-muted: #64748b;
+  --accent-gold: #ca8a04;
+  --frame-blue: #1e3a8a;
+}
+
+.theme-dark {
+  --bg-page: #151b23;
+  --bg-page-border: #b89738;
+  --text-quran: #f1f5f9;
+  --text-muted: #94a3b8;
+  --accent-gold: #fbbf24;
+  --frame-blue: #0f172a;
+}
+
+/* Book Spine and 3D Shadows */
+.book-spine-shadow-left {
+  box-shadow: inset -22px 0 28px -15px rgba(0, 0, 0, 0.28);
+}
+
+.book-spine-shadow-right {
+  box-shadow: inset 22px 0 28px -15px rgba(0, 0, 0, 0.28);
+}
+
+.book-outer-shadow {
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.45), 
+              0 0 0 1px rgba(194, 155, 56, 0.25),
+              0 10px 30px -5px rgba(0, 0, 0, 0.3);
+}
+
+/* Custom Scrollbar for Index and Drawers */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(20, 24, 33, 0.6);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(212, 175, 55, 0.4);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(212, 175, 55, 0.7);
+}
+
+/* Ayah end ornament symbol */
+.ayah-num-symbol {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  vertical-align: middle;
+  margin: 0 0.25rem;
+  user-select: none;
+}
+
+/* Mobile Animations & Native Touch Feel */
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-slide-up {
+  animation: slideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.2s ease-out forwards;
+}
+
+/* Safe area support for iOS / Android notch and home bars */
+.safe-top {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* Prevent unwanted double-tap zoom on fast UI clicks on mobile */
+button, a, input, select {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+

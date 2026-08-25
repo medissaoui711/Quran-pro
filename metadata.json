@@ -1,0 +1,6 @@
+{
+  "name": "المصحف الإلكتروني الشريف",
+  "description": "قارئ القرآن الكريم الإلكتروني التفاعلي بتصميم يحاكي المصحف الشريف الحقيقي، مع فهرس السور والأجزاء والتلاوة الصوتية والتفسير.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
