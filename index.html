@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
     <title>المصحف الإلكتروني الشريف - القارئ التفاعلي</title>
     <meta name="description" content="المصحف الإلكتروني التفاعلي للقرآن الكريم بتصميم يحاكي المصحف الشريف الحقيقي مع التلاوة الصوتية والتفاسير وفهرس السور والأجزاء." />
     
@@ -13,14 +13,23 @@
     
     <!-- PWA & Mobile Web App Capabilities -->
     <link rel="manifest" href="/manifest.webmanifest" />
-    <meta name="theme-color" content="#1e4d2b" />
+    <meta name="theme-color" content="#1e4d2b" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#15341d" media="(prefers-color-scheme: dark)" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="المصحف الشريف" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="application-name" content="المصحف الشريف" />
+    <meta name="msapplication-TileColor" content="#1e4d2b" />
+    <meta name="msapplication-tap-highlight" content="no" />
+    
+    <!-- Apple Touch Icons & Standard Favicons -->
     <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png" />
+    <link rel="icon" type="image/png" sizes="512x512" href="/icons/icon-512.png" />
     <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32.png" />
   </head>
   <body class="bg-[#12161a] text-slate-100 font-sans antialiased overflow-x-hidden selection:bg-amber-700/30 selection:text-amber-200">
@@ -28,4 +37,3 @@
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
-

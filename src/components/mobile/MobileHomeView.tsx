@@ -1,21 +1,18 @@
 import React from 'react';
 import {
   BookOpen,
-  Play,
   Bookmark,
   Trophy,
   Search,
   Sparkles,
   ArrowLeft,
-  Flame,
-  CheckCircle2,
-  Clock,
   Volume2,
 } from 'lucide-react';
 import { Bookmark as BookmarkType, KhatmaTracker, Reciter } from '../../types/quran';
 import { toArabicNumerals } from '../../services/quranApi';
 import { fixArabicText } from '../../services/arabicSanitizer';
 import { SURAHS } from '../../data/quranMetadata';
+import { PWAInstallButton } from '../pwa/PWAInstallButton';
 
 interface MobileHomeViewProps {
   currentPage: number;
@@ -73,6 +70,9 @@ export const MobileHomeView: React.FC<MobileHomeViewProps> = ({
           </p>
         </div>
       </div>
+
+      {/* PWA Install Banner for Mobile if Installable */}
+      <PWAInstallButton variant="home-banner" />
 
       {/* Hero Continue Reading Card */}
       <div className="p-4 rounded-2xl bg-white dark:bg-slate-800 border-2 border-[#c5a059] shadow-md space-y-3">

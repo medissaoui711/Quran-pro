@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { Download, CheckCircle2, Share2 } from 'lucide-react';
+import { Download, CheckCircle2, Share2, Smartphone } from 'lucide-react';
 import { usePWA } from '../../hooks/usePWA';
 import { IOSInstallGuideModal } from './IOSInstallGuideModal';
 
 interface PWAInstallButtonProps {
-  variant?: 'header' | 'menu' | 'mobile-card';
+  variant?: 'header' | 'menu' | 'mobile-card' | 'home-banner';
   className?: string;
 }
 
@@ -16,20 +16,20 @@ export const PWAInstallButton: React.FC<PWAInstallButtonProps> = ({
   const [showIOSModal, setShowIOSModal] = useState<boolean>(false);
   const [isInstalling, setIsInstalling] = useState<boolean>(false);
 
-  // If already installed or running in standalone mode, don't show install button
+  // If already installed or running in standalone mode, don't show install action
   if (isStandalone || isInstalled) {
     if (variant === 'mobile-card') {
       return (
-        <div className="flex items-center gap-2 p-3 bg-emerald-950/40 border border-[#c5a059]/40 rounded-xl text-[#e9d19a] text-xs font-reem">
+        <div className="flex items-center gap-2.5 p-3.5 bg-emerald-950/40 border border-[#c5a059]/40 rounded-xl text-[#e9d19a] text-xs font-reem">
           <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-          <span>تطبيق المصحف الشريف مثبت على جهازك ويعمل كتطبيق مستقل.</span>
+          <span>تطبيق المصحف الشريف مثبت على جهازك ويعمل في نافذة مستقلة.</span>
         </div>
       );
     }
     return null;
   }
 
-  // If not installable and not iOS, hide
+  // If not installable and not iOS Safari, hide button
   if (!isInstallable && !isIOS) {
     return null;
   }
@@ -50,6 +50,7 @@ export const PWAInstallButton: React.FC<PWAInstallButtonProps> = ({
     }
   };
 
+  // Header Nav Variant (Desktop / Tablet Header)
   if (variant === 'header') {
     return (
       <>
@@ -68,6 +69,41 @@ export const PWAInstallButton: React.FC<PWAInstallButtonProps> = ({
     );
   }
 
+  // Mobile Home View Banner Variant
+  if (variant === 'home-banner') {
+    return (
+      <>
+        <div className="p-3.5 rounded-2xl bg-[#15341d] border border-[#c5a059] text-[#fdfaf2] flex items-center justify-between gap-3 shadow-md">
+          <div className="flex items-center gap-2.5">
+            <div className="w-9 h-9 rounded-xl bg-[#1e4d2b] border border-[#c5a059]/60 flex items-center justify-center text-base shrink-0">
+              📱
+            </div>
+            <div>
+              <h4 className="font-bold text-xs font-reem text-[#e9d19a]">
+                تثبيت المصحف على هاتفك
+              </h4>
+              <p className="text-[10px] text-[#fdfaf2]/80 font-reem">
+                قراءة أسرع وتجربة مستقلة بدون اتصال
+              </p>
+            </div>
+          </div>
+
+          <button
+            onClick={handleClick}
+            disabled={isInstalling}
+            className="px-3 py-1.5 bg-[#c5a059] hover:bg-[#e9d19a] text-[#1e4d2b] font-bold font-reem text-xs rounded-xl flex items-center gap-1.5 shrink-0 shadow-xs active:scale-95 transition-all"
+          >
+            {isIOS ? <Share2 className="w-3.5 h-3.5" /> : <Download className="w-3.5 h-3.5" />}
+            <span>{isIOS ? 'طريقة التثبيت' : 'تثبيت'}</span>
+          </button>
+        </div>
+
+        {showIOSModal && <IOSInstallGuideModal onClose={() => setShowIOSModal(false)} />}
+      </>
+    );
+  }
+
+  // Mobile Settings Card Variant
   if (variant === 'mobile-card') {
     return (
       <>
@@ -78,7 +114,7 @@ export const PWAInstallButton: React.FC<PWAInstallButtonProps> = ({
             </div>
             <div>
               <h4 className="font-bold font-reem text-sm text-[#e9d19a]">
-                تثبيت المصحف على هاتفك
+                تثبيت المصحف على جهازك
               </h4>
               <p className="text-[11px] text-[#fdfaf2]/80 font-reem">
                 احصل على تجربة تطبيق سريعة تعمل في نافذة مستقلة وبدون إنترنت
@@ -89,10 +125,10 @@ export const PWAInstallButton: React.FC<PWAInstallButtonProps> = ({
           <button
             onClick={handleClick}
             disabled={isInstalling}
-            className="w-full py-2.5 px-4 rounded-xl bg-[#c5a059] hover:bg-[#e9d19a] text-[#1e4d2b] font-bold font-reem text-xs flex items-center justify-center gap-2 shadow-md active:scale-95 transition-all"
+            className="w-full py-2.5 px-4 rounded-xl bg-[#c5a059] hover:bg-[#e9d19a] text-[#1e4d2b] font-bold font-reem text-xs flex items-center justify-center gap-2 shadow-md active:scale-95 transition-all cursor-pointer"
           >
             {isIOS ? <Share2 className="w-4 h-4" /> : <Download className="w-4 h-4" />}
-            <span>{isIOS ? 'طريقة الإضافة للشاشة الرئيسية (iOS)' : 'تثبيت المصحف الآن'}</span>
+            <span>{isIOS ? 'طريقة الإضافة للشاشة الرئيسية (iOS Safari)' : 'تثبيت المصحف الآن'}</span>
           </button>
         </div>
 

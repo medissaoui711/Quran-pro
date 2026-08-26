@@ -1,7 +1,8 @@
 {
-  "name": "المصحف الإلكتروني الشريف",
+  "id": "/?source=pwa",
+  "name": "المصحف الإلكتروني الشريف - القارئ التفاعلي",
   "short_name": "المصحف الشريف",
-  "description": "تطبيق المصحف الشريف التفاعلي لقراءة وتلاوة واستماع القرآن الكريم بالرسم العثماني مع التفسير والختمات القرآنية",
+  "description": "تطبيق المصحف الشريف التفاعلي لقراءة وتلاوة واستماع القرآن الكريم بالرسم العثماني المعتمد مع التفسير والختمات القرآنية",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
@@ -12,6 +13,7 @@
   "theme_color": "#1e4d2b",
   "background_color": "#15341d",
   "categories": ["books", "education", "lifestyle"],
+  "prefer_related_applications": false,
   "icons": [
     {
       "src": "/icons/icon-192.png",
@@ -64,6 +66,13 @@
       "short_name": "الإشارات",
       "description": "عرض الآيات والصفحات المحفوظة",
       "url": "/?tab=bookmarks",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "الختمة القرآنية",
+      "short_name": "الختمة",
+      "description": "متابعة خطة ختم القرآن الكريم",
+      "url": "/?tab=settings",
       "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
     }
   ]
