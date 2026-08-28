@@ -74,7 +74,17 @@ export const MobileAppShell: React.FC<MobileAppShellProps> = ({
   onUpdateKhatmaDays,
   onRecordDailyProgress,
 }) => {
-  const [activeTab, setActiveTab] = useState<MobileTab>('reader');
+  // Read initial tab from URL query params (e.g. from PWA shortcuts)
+  const [activeTab, setActiveTab] = useState<MobileTab>(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const tabParam = params.get('tab') as MobileTab | null;
+      if (tabParam && ['home', 'reader', 'index', 'bookmarks', 'settings'].includes(tabParam)) {
+        return tabParam;
+      }
+    }
+    return 'reader';
+  });
   const [isImmersive, setIsImmersive] = useState<boolean>(false);
 
   const {
