@@ -10,17 +10,46 @@
 
   body {
     font-family: var(--font-cairo);
+    direction: rtl;
+    text-align: right;
   }
 }
 
 .font-quran {
   font-family: var(--font-quran);
-  font-feature-settings: "cv01" on, "cv02" on, "cv03" on, "calt" on;
+  font-feature-settings: "cv01" on, "cv02" on, "cv03" on, "calt" on, "kern" on;
+  text-rendering: geometricPrecision;
+  -webkit-font-smoothing: antialiased;
 }
 
 .font-uthmani {
   font-family: var(--font-uthmani);
-  font-feature-settings: "cv01" on, "cv02" on, "cv03" on, "calt" on;
+  font-feature-settings: "cv01" on, "cv02" on, "cv03" on, "calt" on, "kern" on;
+  text-rendering: geometricPrecision;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* RTL & BiDi Isolation Container Rules */
+.quran-text-container {
+  direction: rtl;
+  unicode-bidi: isolate;
+  line-height: 2.7 !important;
+  padding-top: 0.35rem;
+  padding-bottom: 0.35rem;
+  text-rendering: geometricPrecision;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Ayah end ornament symbol with guaranteed BiDi isolation */
+.ayah-num-symbol {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  vertical-align: middle;
+  margin: 0 0.35rem;
+  user-select: none;
+  direction: ltr;
+  unicode-bidi: isolate;
 }
 
 .font-cairo {

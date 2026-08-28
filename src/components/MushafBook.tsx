@@ -6,6 +6,7 @@ import { MushafPageView } from './MushafPageView';
 import { toArabicNumerals } from '../services/quranApi';
 import { SURAHS, getJuzForPage } from '../data/quranMetadata';
 import { useQuranSwipe } from '../hooks/useQuranSwipe';
+import { useScrollResetOnPageChange } from '../hooks/useScrollResetOnPageChange';
 
 interface MushafBookProps {
   rightPageData: QuranPageData;
@@ -68,6 +69,9 @@ export const MushafBook: React.FC<MushafBookProps> = ({
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [currentPage, viewMode]);
+
+  // Guaranteed scroll reset for desktop/tablet layout on page transition
+  useScrollResetOnPageChange(currentPage);
 
   const handleNext = () => {
     const step = viewMode === 'spread' && currentPage > 1 ? 2 : 1;

@@ -1,5 +1,6 @@
 import { Ayah, QuranPageData, Surah } from '../types/quran';
 import { SURAHS, getJuzForPage } from '../data/quranMetadata';
+import { getSajdahInfo } from '../data/quranStructuralData';
 
 // Cache for loaded pages
 const pageCache = new Map<number, QuranPageData>();
@@ -15,8 +16,11 @@ export function toArabicNumerals(n: number | string): string {
 export function normalizeArabic(text: string): string {
   if (!text) return '';
   return text
-    // Remove Tashkeel / Harakat
-    .replace(/[\u064B-\u065F\u0670\u06D6-\u06ED]/g, '')
+    // Replace superscript alif (alif khanjariyah) with full alif for standard search compatibility if needed or strip
+    // Remove Tashkeel / Harakat and Quranic marks
+    .replace(/[\u064B-\u065F\u06D6-\u06ED]/g, '')
+    // Normalize dagger alif \u0670
+    .replace(/\u0670/g, 'ا')
     // Normalize Alef variants
     .replace(/[أإآٱ]/g, 'ا')
     // Normalize Yaa variants
@@ -25,6 +29,8 @@ export function normalizeArabic(text: string): string {
     .replace(/ة/g, 'ه')
     // Remove tatweel (kashida)
     .replace(/\u0640/g, '')
+    // Collapse multiple whitespaces
+    .replace(/\s+/g, ' ')
     // Remove extra whitespace
     .trim();
 }
@@ -76,19 +82,28 @@ export async function fetchQuranPage(pageNumber: number): Promise<QuranPageData>
       };
       surahNamesSet.add(s.name);
 
+      let ayahText = a.text;
+      // Bismillah Stripper Engine (Zero Tolerance Rule #1)
+      if (a.numberInSurah === 1 && a.surah.number !== 1 && a.surah.number !== 9) {
+        ayahText = ayahText.replace(/^بِسْمِ ٱللَّهِ ٱلرَّحْمَـ?ٰنِ ٱلرَّحِيمِ\s*/, '');
+      }
+
+      const canonicalSajdah = getSajdahInfo(a.surah.number, a.numberInSurah);
+      const isSajda = Boolean(canonicalSajdah || a.sajda);
+
       return {
         number: a.number,
         numberInSurah: a.numberInSurah,
         surahNumber: a.surah.number,
         surahName: s.name,
-        text: a.text,
-        cleanText: normalizeArabic(a.text),
+        text: ayahText,
+        cleanText: normalizeArabic(ayahText),
         juz: a.juz,
         manzil: a.manzil,
         page: a.page,
         ruku: a.ruku,
         hizbQuarter: a.hizbQuarter,
-        sajda: a.sajda,
+        sajda: isSajda,
       };
     });
 
@@ -153,16 +168,22 @@ export async function searchQuran(query: string): Promise<Ayah[]> {
     if (response.ok) {
       const data = await response.json();
       if (data.data && data.data.matches) {
-        return data.data.matches.map((m: any) => ({
-          number: m.number,
-          numberInSurah: m.numberInSurah,
-          surahNumber: m.surah.number,
-          surahName: m.surah.name,
-          text: m.text,
-          cleanText: normalizeArabic(m.text),
-          juz: m.juz || getJuzForPage(m.page || 1),
-          page: m.page || 1,
-        }));
+        return data.data.matches.map((m: any) => {
+          let ayahText = m.text;
+          if (m.numberInSurah === 1 && m.surah.number !== 1 && m.surah.number !== 9) {
+            ayahText = ayahText.replace(/^بِسْمِ ٱللَّهِ ٱلرَّحْمَـ?ٰنِ ٱلرَّحِيمِ\s*/, '');
+          }
+          return {
+            number: m.number,
+            numberInSurah: m.numberInSurah,
+            surahNumber: m.surah.number,
+            surahName: m.surah.name,
+            text: ayahText,
+            cleanText: normalizeArabic(ayahText),
+            juz: m.juz || getJuzForPage(m.page || 1),
+            page: m.page || 1,
+          };
+        });
       }
     }
   } catch (err) {

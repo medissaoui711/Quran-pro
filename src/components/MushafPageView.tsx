@@ -3,6 +3,35 @@ import { Ayah, QuranPageData, PaperTheme } from '../types/quran';
 import { MushafFrame, SurahHeaderBanner, BasmalahBanner } from './MushafFrame';
 import { toArabicNumerals, getMushafPageImageUrl, getMushafPageImageUrlBackup } from '../services/quranApi';
 import { SURAHS } from '../data/quranMetadata';
+import { useScrollResetOnPageChange } from '../hooks/useScrollResetOnPageChange';
+
+function stripBismillah(text: string): string {
+  const normalizedText = text.replace(/[\u064B-\u065F\u0670\u0640]/g, '').replace(/[ٱأإآ]/g, 'ا');
+  const bismillahBase = 'بسم الله الرحمن الرحيم';
+  if (normalizedText.startsWith(bismillahBase)) {
+    let matchCount = 0;
+    let i = 0;
+    for (; i < text.length && matchCount < bismillahBase.length; i++) {
+      const char = text[i];
+      if (/[\u064B-\u065F\u0670\u0640]/.test(char)) continue;
+      let baseChar = char;
+      if (/[ٱأإآ]/.test(char)) baseChar = 'ا';
+      if (baseChar === bismillahBase[matchCount]) {
+        matchCount++;
+      }
+    }
+    // consume trailing diacritics
+    while (i < text.length && /[\u064B-\u065F\u0670\u0640]/.test(text[i])) {
+      i++;
+    }
+    // consume trailing whitespace
+    while (i < text.length && /\s/.test(text[i])) {
+      i++;
+    }
+    return text.substring(i);
+  }
+  return text;
+}
 
 interface MushafPageViewProps {
   pageData: QuranPageData;
@@ -28,6 +57,9 @@ export const MushafPageView: React.FC<MushafPageViewProps> = ({
 
   const mainSurahName = pageData.surahNames[0] || 'الفاتحة';
   const surahInfo = SURAHS.find((s) => s.name === mainSurahName) || SURAHS[0];
+
+  // Guaranteed instant scroll reset to top across all devices
+  useScrollResetOnPageChange(pageData.pageNumber);
 
   // Group ayahs by surah to insert headers if a new surah starts on this page
   const ayahsBySurah: { [surahNum: number]: Ayah[] } = {};
@@ -106,14 +138,16 @@ export const MushafPageView: React.FC<MushafPageViewProps> = ({
               return (
                 <div key={sNum} className="w-full mb-2">
                   {/* Surah Header if page begins a new Surah */}
-                  {isStartOfSurah && sNum !== 1 && (
+                  {isStartOfSurah && (
                     <>
-                      <SurahHeaderBanner
-                        surahName={currentSurah.name}
-                        ayahCount={currentSurah.numberOfAyahs}
-                        revelationPlace={currentSurah.revelationPlaceArabic}
-                      />
-                      {sNum !== 9 && <BasmalahBanner theme={theme} />}
+                      {sNum !== 1 && (
+                        <SurahHeaderBanner
+                          surahName={currentSurah.name}
+                          ayahCount={currentSurah.numberOfAyahs}
+                          revelationPlace={currentSurah.revelationPlaceArabic}
+                        />
+                      )}
+                      {currentSurah.bismillahPrecedes && <BasmalahBanner theme={theme} />}
                     </>
                   )}
 
@@ -127,6 +161,12 @@ export const MushafPageView: React.FC<MushafPageViewProps> = ({
                   >
                     {surahAyahs.map((ayah) => {
                       const isActive = activeAyahNumber === ayah.number;
+                      
+                      // Render-Time Bismillah Stripper (Extra Safety against cached data)
+                      let renderText = ayah.text;
+                      if (ayah.numberInSurah === 1 && ayah.surahNumber !== 1 && ayah.surahNumber !== 9) {
+                        renderText = stripBismillah(renderText);
+                      }
 
                       return (
                         <span
@@ -150,25 +190,26 @@ export const MushafPageView: React.FC<MushafPageViewProps> = ({
                           }`}
                           title={`سورة ${ayah.surahName} - الآية ${ayah.numberInSurah} (انقر للاستماع والتفسير)`}
                         >
-                          <span className="leading-normal">{ayah.text}</span>
+                          <span className="leading-normal">{renderText}</span>
                           
                           {/* Ayah End Ornamental Marker ﴿١﴾ matching Natural Tones style */}
-                          <span
-                            className="inline-flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 border-2 border-[#c5a059] rounded-full text-xs sm:text-sm font-bold mx-1.5 align-middle select-none transition-colors"
+                          <bdi
+                            className="inline-flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 border-2 border-[#c5a059] rounded-full text-xs sm:text-sm font-bold mx-1.5 align-middle select-none transition-colors ayah-num-symbol"
                             style={{
                               backgroundColor: theme === 'dark' ? '#15241b' : '#fdfaf2',
                               color: theme === 'dark' ? '#fbbf24' : '#8b6e31',
                               borderColor: theme === 'dark' ? '#e9d19a' : '#c5a059',
                             }}
+                            aria-label={`آية ${ayah.numberInSurah}`}
                           >
                             {toArabicNumerals(ayah.numberInSurah)}
-                          </span>
+                          </bdi>
 
                           {/* Sajdah Marker badge if exists */}
                           {ayah.sajda && (
-                            <span className="inline-flex items-center text-[10px] sm:text-xs bg-[#1e4d2b] text-[#fdfaf2] border border-[#c5a059] px-1.5 py-0.5 rounded mx-1 font-reem">
+                            <bdi className="inline-flex items-center text-[10px] sm:text-xs bg-[#1e4d2b] text-[#fdfaf2] border border-[#c5a059] px-1.5 py-0.5 rounded mx-1 font-reem select-none">
                               ۩ سجدة
-                            </span>
+                            </bdi>
                           )}
                         </span>
                       );

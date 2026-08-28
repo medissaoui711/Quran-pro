@@ -56,7 +56,7 @@ export const MobileHeader: React.FC<MobileHeaderProps> = ({
 
   return (
     <header
-      className="sticky top-0 z-40 bg-[#1e4d2b] text-[#fdfaf2] border-b-2 border-[#c5a059] shadow-md select-none pt-[env(safe-area-inset-top)] transition-all duration-300"
+      className="sticky top-0 z-40 bg-[#15341d] dark:bg-[#0e1410] text-[#fdfaf2] border-b-2 border-[#c5a059] shadow-md select-none pt-[env(safe-area-inset-top)] transition-all duration-300"
       dir="rtl"
     >
       <div className="max-w-md mx-auto px-3 h-14 flex items-center justify-between gap-2">

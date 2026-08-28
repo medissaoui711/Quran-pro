@@ -3,7 +3,7 @@
  * Production-ready Service Worker with offline reading support
  */
 
-const CACHE_VERSION = 'mushaf-pwa-v3';
+const CACHE_VERSION = 'mushaf-pwa-v4';
 const STATIC_CACHE = `mushaf-static-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `mushaf-runtime-${CACHE_VERSION}`;
 const PAGES_CACHE = `mushaf-pages-${CACHE_VERSION}`;

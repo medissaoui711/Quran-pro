@@ -63,14 +63,14 @@ export const SurahIndexDrawer: React.FC<SurahIndexDrawerProps> = ({
         dir="rtl"
       >
         {/* Drawer Header with Natural Tones */}
-        <div className="px-5 py-4 bg-[#1e4d2b] text-[#fdfaf2] flex items-center justify-between border-b-2 border-[#c5a059]">
+        <div className="px-5 py-4 bg-[#15341d] dark:bg-[#0e1410] text-[#fdfaf2] flex items-center justify-between border-b-2 border-[#c5a059]">
           <div className="flex items-center gap-2">
             <BookOpen className="w-5 h-5 text-[#c5a059]" />
             <h2 className="text-lg font-bold font-reem">فهرس المصحف الشريف</h2>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg bg-[#15341d] hover:bg-[#c5a059] hover:text-[#1e4d2b] transition-colors border border-[#c5a059]/40"
+            className="p-1.5 rounded-lg bg-[#0a2312] dark:bg-[#1a231d] hover:bg-[#c5a059] hover:text-[#1e4d2b] transition-colors border border-[#c5a059]/40"
             title="إغلاق الفهرس"
           >
             <X className="w-5 h-5" />

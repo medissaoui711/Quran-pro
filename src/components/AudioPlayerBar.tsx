@@ -47,14 +47,14 @@ export const AudioPlayerBar: React.FC = () => {
 
   return (
     <div
-      className="fixed bottom-0 inset-x-0 z-40 bg-[#1e4d2b] text-[#fdfaf2] border-t-4 border-[#c5a059] shadow-2xl p-2 sm:p-3 transition-transform duration-300 select-none"
+      className="fixed bottom-0 inset-x-0 z-40 bg-[#15341d] dark:bg-[#0e1410] text-[#fdfaf2] border-t-4 border-[#c5a059] shadow-2xl p-2 sm:p-3 transition-transform duration-300 select-none"
       dir="rtl"
     >
       <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-2 sm:gap-4">
         {/* Right Info: Current Ayah & Surah */}
         <div className="flex items-center gap-3 w-full md:w-auto justify-between md:justify-start">
           <div className="flex items-center gap-2">
-            <div className="w-9 h-9 rounded-full bg-[#15341d] border border-[#c5a059] flex items-center justify-center text-[#c5a059]">
+            <div className="w-9 h-9 rounded-full bg-[#0a2312] dark:bg-[#1a231d] border border-[#c5a059] flex items-center justify-center text-[#c5a059]">
               <Volume2 className="w-5 h-5" />
             </div>
             <div>

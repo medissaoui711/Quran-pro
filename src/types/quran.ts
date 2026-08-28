@@ -9,6 +9,7 @@ export interface Surah {
   startPage: number;
   endPage: number;
   juz: number;
+  bismillahPrecedes: boolean;
 }
 
 export interface Ayah {

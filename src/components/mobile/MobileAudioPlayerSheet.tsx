@@ -46,7 +46,7 @@ export const MobileAudioPlayerSheet: React.FC = () => {
       dir="rtl"
     >
       <div
-        className="w-full max-w-lg mx-auto bg-[#1e4d2b] text-[#fdfaf2] border-t-4 border-[#c5a059] rounded-t-3xl shadow-2xl p-5 space-y-4 animate-slide-up pb-[calc(1.5rem+env(safe-area-inset-bottom))]"
+        className="w-full max-w-lg mx-auto bg-[#15341d] dark:bg-[#0e1410] text-[#fdfaf2] border-t-4 border-[#c5a059] rounded-t-3xl shadow-2xl p-5 space-y-4 animate-slide-up pb-[calc(1.5rem+env(safe-area-inset-bottom))]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Grabber Handle */}

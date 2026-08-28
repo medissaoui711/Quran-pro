@@ -16,6 +16,8 @@ import {
 import { ViewMode, PaperTheme } from '../types/quran';
 import { toArabicNumerals } from '../services/quranApi';
 import { PWAInstallButton } from './pwa/PWAInstallButton';
+import { OfflineManager } from './pwa/OfflineManager';
+import { CloudDownload } from 'lucide-react';
 
 interface HeaderNavProps {
   onOpenIndex: () => void;
@@ -56,6 +58,7 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
 }) => {
   const [jumpInput, setJumpInput] = useState<string>('');
   const [showJumpForm, setShowJumpForm] = useState<boolean>(false);
+  const [showOfflineManager, setShowOfflineManager] = useState<boolean>(false);
 
   const handleJumpSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -69,13 +72,13 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
 
   return (
     <header
-      className="w-full bg-[#1e4d2b] text-[#fdfaf2] border-b-4 border-[#c5a059] shadow-lg px-2 sm:px-4 py-2 select-none sticky top-0 z-40 transition-all duration-300"
+      className="w-full bg-[#15341d] dark:bg-[#0e1410] text-[#fdfaf2] border-b-4 border-[#c5a059] shadow-lg px-2 sm:px-4 py-2 select-none sticky top-0 z-40 transition-all duration-300"
       dir="rtl"
     >
       <div className="max-w-7xl mx-auto flex items-center justify-between gap-2 sm:gap-4">
         {/* Right Section: Logo and Islamic Title */}
         <div className="flex items-center gap-2 sm:gap-3">
-          <div className="relative flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 bg-[#15341d] rounded-lg border border-[#c5a059] shadow-xs">
+          <div className="relative flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 bg-[#0a2312] dark:bg-[#151b23] rounded-lg border border-[#c5a059] shadow-xs">
             <span className="text-base sm:text-xl">📖</span>
           </div>
           <div>
@@ -93,7 +96,7 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
           {/* Surah Index Trigger */}
           <button
             onClick={onOpenIndex}
-            className="flex items-center gap-1.5 px-2.5 sm:px-3.5 py-1.5 rounded-lg bg-[#15341d] hover:bg-[#c5a059] hover:text-[#1e4d2b] text-[#fdfaf2] border border-[#c5a059]/50 text-xs sm:text-sm font-reem font-bold transition-all shadow-xs"
+            className="flex items-center gap-1.5 px-2.5 sm:px-3.5 py-1.5 rounded-lg bg-[#0a2312] dark:bg-[#1a231d] hover:bg-[#c5a059] hover:text-[#1e4d2b] text-[#fdfaf2] border border-[#c5a059]/50 text-xs sm:text-sm font-reem font-bold transition-all shadow-xs"
             title="فهرس السور والأجزاء والبحث"
           >
             <BookOpen className="w-4 h-4 text-[#c5a059] group-hover:text-inherit" />
@@ -103,7 +106,7 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
           {/* Khatma Planner Trigger */}
           <button
             onClick={onOpenKhatma}
-            className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg bg-[#15341d] hover:bg-[#c5a059] hover:text-[#1e4d2b] text-[#fdfaf2] border border-[#c5a059]/50 text-xs sm:text-sm font-reem transition-all"
+            className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg bg-[#0a2312] dark:bg-[#1a231d] hover:bg-[#c5a059] hover:text-[#1e4d2b] text-[#fdfaf2] border border-[#c5a059]/50 text-xs sm:text-sm font-reem transition-all"
             title="متابعة ختمة القرآن ودعاء الختم"
           >
             <Trophy className="w-4 h-4 text-[#c5a059]" />
@@ -113,7 +116,7 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
           {/* Bookmarks Trigger */}
           <button
             onClick={onOpenBookmarks}
-            className="relative flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg bg-[#15341d] hover:bg-[#c5a059] hover:text-[#1e4d2b] text-[#fdfaf2] border border-[#c5a059]/50 text-xs sm:text-sm font-reem transition-all"
+            className="relative flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg bg-[#0a2312] dark:bg-[#1a231d] hover:bg-[#c5a059] hover:text-[#1e4d2b] text-[#fdfaf2] border border-[#c5a059]/50 text-xs sm:text-sm font-reem transition-all"
             title="الإشارات والعلامات المحفوظة"
           >
             <Bookmark className="w-4 h-4 text-[#c5a059]" />
@@ -128,7 +131,7 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
           {/* Audio Recitation Trigger */}
           <button
             onClick={onOpenAudio}
-            className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg bg-[#15341d] hover:bg-[#c5a059] hover:text-[#1e4d2b] text-[#fdfaf2] border border-[#c5a059]/50 text-xs sm:text-sm font-reem transition-all"
+            className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg bg-[#0a2312] dark:bg-[#1a231d] hover:bg-[#c5a059] hover:text-[#1e4d2b] text-[#fdfaf2] border border-[#c5a059]/50 text-xs sm:text-sm font-reem transition-all"
             title="الاستماع للتلاوة الصوتية"
           >
             <Volume2 className="w-4 h-4 text-[#c5a059]" />
@@ -142,7 +145,7 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
           <div className="relative">
             <button
               onClick={() => setShowJumpForm(!showJumpForm)}
-              className="px-2 sm:px-2.5 py-1.5 rounded-lg bg-[#15341d] hover:bg-[#c5a059] hover:text-[#1e4d2b] text-[#e9d19a] border border-[#c5a059]/40 text-xs font-reem font-bold"
+              className="px-2 sm:px-2.5 py-1.5 rounded-lg bg-[#0a2312] dark:bg-[#1a231d] hover:bg-[#c5a059] hover:text-[#1e4d2b] text-[#e9d19a] border border-[#c5a059]/40 text-xs font-reem font-bold"
               title="الانتقال لصفحة محددة"
             >
               ص {toArabicNumerals(currentPage)}
@@ -235,6 +238,22 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
           >
             {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
           </button>
+
+          {/* Offline Download Button (Desktop Popover) */}
+          <div className="relative hidden md:block">
+            <button
+              onClick={() => setShowOfflineManager(!showOfflineManager)}
+              className="p-1.5 sm:p-2 rounded-lg bg-[#15341d] text-[#e9d19a] border border-[#c5a059]/40 hover:bg-[#c5a059] hover:text-[#1e4d2b] transition-colors"
+              title="تحميل المصحف للعمل بدون إنترنت"
+            >
+              <CloudDownload className="w-4 h-4" />
+            </button>
+            {showOfflineManager && (
+              <div className="absolute left-0 top-full mt-2 w-80 z-50">
+                <OfflineManager />
+              </div>
+            )}
+          </div>
 
           {/* Desktop / Responsive PWA Install Button */}
           <PWAInstallButton variant="header" />

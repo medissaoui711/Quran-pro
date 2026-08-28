@@ -39,7 +39,7 @@ export const MobileBottomNavigation: React.FC<MobileBottomNavigationProps> = ({
 
   return (
     <nav
-      className="fixed bottom-0 inset-x-0 z-40 bg-[#1e4d2b] border-t-2 border-[#c5a059] shadow-2xl transition-transform duration-300 select-none pb-[env(safe-area-inset-bottom)]"
+      className="fixed bottom-0 inset-x-0 z-40 bg-[#15341d] dark:bg-[#0e1410] border-t-2 border-[#c5a059] shadow-2xl transition-transform duration-300 select-none pb-[env(safe-area-inset-bottom)]"
       dir="rtl"
       style={{
         boxShadow: '0 -4px 20px rgba(0, 0, 0, 0.25)',

@@ -48,10 +48,10 @@ export const MushafFrame: React.FC<MushafFrameProps> = ({
                 <span className="text-[#8b6e31] dark:text-[#e9d19a] text-[11px] sm:text-xs font-bold uppercase tracking-widest mb-1 font-reem">
                   الجزء {toArabicNumerals(juzNumber)}
                 </span>
-                <div className="h-1 w-8 sm:w-12 bg-[#1e4d2b] rounded-full"></div>
+                <div className="h-1 w-8 sm:w-12 bg-[#1e4d2b] dark:bg-[#c5a059] rounded-full"></div>
               </div>
               
-              <div className="relative px-5 sm:px-10 py-1.5 sm:py-2.5 bg-[#1e4d2b] rounded-sm shadow-md">
+              <div className="relative px-5 sm:px-10 py-1.5 sm:py-2.5 bg-[#1e4d2b] dark:bg-[#0a2312] border border-[#c5a059] rounded-sm shadow-md">
                 <div className="absolute inset-0 border border-[#c5a059] m-0.5 sm:m-1"></div>
                 <h1 className="text-[#fdfaf2] text-sm sm:text-xl md:text-2xl font-quran font-bold relative z-10">
                   سُورَةُ {surahName}
@@ -62,7 +62,7 @@ export const MushafFrame: React.FC<MushafFrameProps> = ({
                 <span className="text-[#8b6e31] dark:text-[#e9d19a] text-[11px] sm:text-xs font-bold uppercase tracking-widest mb-1 font-reem">
                   الحزب {toArabicNumerals(Math.ceil(pageNumber / 10))}
                 </span>
-                <div className="h-1 w-8 sm:w-12 bg-[#1e4d2b] rounded-full"></div>
+                <div className="h-1 w-8 sm:w-12 bg-[#1e4d2b] dark:bg-[#c5a059] rounded-full"></div>
               </div>
             </header>
 
@@ -111,10 +111,10 @@ export const MushafFrame: React.FC<MushafFrameProps> = ({
             <span className="text-[#8b6e31] dark:text-[#e9d19a] text-[10px] sm:text-xs font-bold font-reem">
               الجزء {toArabicNumerals(juzNumber)}
             </span>
-            <div className="h-0.5 w-6 sm:w-10 bg-[#1e4d2b] rounded-full mt-0.5"></div>
+            <div className="h-0.5 w-6 sm:w-10 bg-[#1e4d2b] dark:bg-[#c5a059] rounded-full mt-0.5"></div>
           </div>
           
-          <div className="relative px-4 sm:px-8 py-1 bg-[#1e4d2b] rounded-xs shadow-xs">
+          <div className="relative px-4 sm:px-8 py-1 bg-[#1e4d2b] dark:bg-[#0a2312] border border-[#c5a059] rounded-xs shadow-xs">
             <div className="absolute inset-0 border border-[#c5a059] m-0.5"></div>
             <h1 className="text-[#fdfaf2] text-xs sm:text-base md:text-lg font-quran font-bold relative z-10">
               سُورَةُ {surahName}
@@ -125,7 +125,7 @@ export const MushafFrame: React.FC<MushafFrameProps> = ({
             <span className="text-[#8b6e31] dark:text-[#e9d19a] text-[10px] sm:text-xs font-bold font-reem">
               الحزب {toArabicNumerals(Math.ceil(pageNumber / 10))}
             </span>
-            <div className="h-0.5 w-6 sm:w-10 bg-[#1e4d2b] rounded-full mt-0.5"></div>
+            <div className="h-0.5 w-6 sm:w-10 bg-[#1e4d2b] dark:bg-[#c5a059] rounded-full mt-0.5"></div>
           </div>
         </header>
 
@@ -188,23 +188,24 @@ export const SurahHeaderBanner: React.FC<{
 }> = ({ surahName, ayahCount, revelationPlace }) => {
   return (
     <div className="w-full my-3 sm:my-4 select-none">
-      <div className="relative w-full py-2 px-4 border-2 border-[#c5a059] rounded-sm bg-[#1e4d2b] text-center shadow-md overflow-hidden">
+      <div className="relative w-full py-2 px-4 border-2 border-[#c5a059] rounded-sm bg-[#1e4d2b] dark:bg-[#0a2312] text-center shadow-md overflow-hidden flex items-center justify-center min-h-[44px]">
         {/* Geometric Islamic Ornament Inner Lines */}
         <div className="absolute inset-0 border border-[#e9d19a]/40 m-1 pointer-events-none"></div>
         
-        <div className="flex items-center justify-between text-xs sm:text-sm font-reem text-[#e9d19a]">
-          <span className="hidden sm:inline bg-[#15341d] border border-[#c5a059]/40 px-2.5 py-0.5 rounded text-[11px]">
-            {revelationPlace}
-          </span>
-          
-          <h2 className="text-base sm:text-xl md:text-2xl font-bold font-quran text-[#fdfaf2] tracking-wider relative z-10">
-            سُورَةُ {surahName}
-          </h2>
+        {/* Left item (absolute on sm) */}
+        <span className="hidden sm:inline absolute left-4 bg-[#15341d] dark:bg-[#151b23] border border-[#c5a059]/40 px-2.5 py-0.5 rounded text-[11px] text-[#e9d19a] font-reem">
+          {revelationPlace}
+        </span>
+        
+        {/* Perfectly centered title */}
+        <h2 className="text-base sm:text-xl md:text-2xl font-bold font-quran text-[#fdfaf2] tracking-wider relative z-10 mx-auto">
+          سُورَةُ {surahName}
+        </h2>
 
-          <span className="hidden sm:inline bg-[#15341d] border border-[#c5a059]/40 px-2.5 py-0.5 rounded text-[11px]">
-            {toArabicNumerals(ayahCount)} آيات
-          </span>
-        </div>
+        {/* Right item (absolute on sm) */}
+        <span className="hidden sm:inline absolute right-4 bg-[#15341d] dark:bg-[#151b23] border border-[#c5a059]/40 px-2.5 py-0.5 rounded text-[11px] text-[#e9d19a] font-reem">
+          {toArabicNumerals(ayahCount)} آيات
+        </span>
       </div>
     </div>
   );
@@ -213,9 +214,10 @@ export const SurahHeaderBanner: React.FC<{
 // Basmalah Calligraphy Banner
 export const BasmalahBanner: React.FC<{ theme?: PaperTheme }> = ({ theme }) => {
   return (
-    <div className="w-full text-center my-3 sm:my-4 select-none">
+    <div className="w-full text-center my-3 sm:my-4 select-none" dir="rtl">
       <div
-        className="inline-block px-4 py-1 text-center font-quran text-lg sm:text-2xl md:text-3xl tracking-wide transition-colors"
+        className="inline-block px-4 py-1 text-center font-quran text-lg sm:text-2xl md:text-3xl tracking-wide transition-colors quran-text-container"
+        dir="rtl"
         style={{
           wordSpacing: '8px',
           color: theme === 'dark' ? '#f8fafc' : '#1a1a1a',

@@ -67,7 +67,7 @@ export const AyahDetailModal: React.FC<AyahDetailModalProps> = ({
         dir="rtl"
       >
         {/* Modal Header */}
-        <div className="px-5 py-3.5 bg-[#1e4d2b] text-[#fdfaf2] flex items-center justify-between border-b-2 border-[#c5a059]">
+        <div className="px-5 py-3.5 bg-[#15341d] dark:bg-[#0e1410] text-[#fdfaf2] flex items-center justify-between border-b-2 border-[#c5a059]">
           <div className="flex items-center gap-2">
             <BookOpen className="w-5 h-5 text-[#c5a059]" />
             <h2 className="text-base sm:text-lg font-bold font-reem">
@@ -76,7 +76,7 @@ export const AyahDetailModal: React.FC<AyahDetailModalProps> = ({
           </div>
           <button
             onClick={onClose}
-            className="p-1 rounded-lg bg-[#15341d] hover:bg-[#c5a059] hover:text-[#1e4d2b] transition-colors border border-[#c5a059]/40"
+            className="p-1 rounded-lg bg-[#0a2312] dark:bg-[#1a231d] hover:bg-[#c5a059] hover:text-[#1e4d2b] transition-colors border border-[#c5a059]/40"
           >
             <X className="w-5 h-5" />
           </button>
@@ -86,11 +86,11 @@ export const AyahDetailModal: React.FC<AyahDetailModalProps> = ({
         <div className="flex-1 overflow-y-auto p-5 space-y-5">
           {/* Main Ayah Typography Banner */}
           <div className="p-5 rounded-lg bg-white dark:bg-slate-800 border-2 border-[#e9d19a] text-center shadow-xs">
-            <p className="font-quran text-xl sm:text-2xl md:text-3xl text-[#1a1a1a] dark:text-[#fdfaf2] leading-[2.6] select-text">
-              {ayah.text}
-              <span className="inline-flex items-center justify-center w-8 h-8 border-2 border-[#c5a059] rounded-full text-xs sm:text-sm font-bold text-[#8b6e31] dark:text-[#e9d19a] mx-2 align-middle font-reem">
+            <p className="font-quran text-xl sm:text-2xl md:text-3xl text-[#1a1a1a] dark:text-[#fdfaf2] leading-[2.8] select-text quran-text-container" dir="rtl">
+              <span>{ayah.text}</span>
+              <bdi className="inline-flex items-center justify-center w-8 h-8 border-2 border-[#c5a059] rounded-full text-xs sm:text-sm font-bold text-[#8b6e31] dark:text-[#e9d19a] mx-2 align-middle font-reem ayah-num-symbol">
                 {toArabicNumerals(ayah.numberInSurah)}
-              </span>
+              </bdi>
             </p>
 
             <div className="flex items-center justify-center gap-4 mt-4 pt-3 border-t border-[#e9d19a]/50 text-xs font-reem text-[#8b6e31] dark:text-stone-300">

@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useLayoutEffect } from 'react';
 import {
   ChevronLeft,
   ChevronRight,
@@ -16,6 +16,7 @@ import { MushafPageView } from '../MushafPageView';
 import { toArabicNumerals } from '../../services/quranApi';
 import { fixArabicText } from '../../services/arabicSanitizer';
 import { useQuranSwipe } from '../../hooks/useQuranSwipe';
+import { useScrollResetOnPageChange } from '../../hooks/useScrollResetOnPageChange';
 
 interface MobileReaderViewProps {
   pageData: QuranPageData | null;
@@ -73,6 +74,9 @@ export const MobileReaderView: React.FC<MobileReaderViewProps> = ({
   const currentPage = pageData?.pageNumber || 1;
   const juzNumber = pageData?.juzNumber || 1;
   const surahName = pageData?.surahNames?.[0] || 'الفاتحة';
+
+  // Force deterministic scroll reset on page change & loading resolution
+  useScrollResetOnPageChange(currentPage);
 
   return (
     <div

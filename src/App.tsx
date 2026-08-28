@@ -3,329 +3,103 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useEffect, useCallback } from 'react';
-import { HeaderNav } from './components/HeaderNav';
-import { MushafBook } from './components/MushafBook';
-import { SurahIndexDrawer } from './components/SurahIndexDrawer';
-import { AyahDetailModal } from './components/AyahDetailModal';
-import { AudioPlayerBar } from './components/AudioPlayerBar';
-import { KhatmaTrackerModal } from './components/KhatmaTrackerModal';
-import { BookmarksDrawer } from './components/BookmarksDrawer';
+import { useState } from 'react';
+import { Ayah } from './types/quran';
+import { AudioProvider } from './context/AudioContext';
 import { MobileAppShell } from './components/mobile/MobileAppShell';
-import { QuranPageData, PaperTheme, ViewMode, Ayah, Bookmark, KhatmaTracker } from './types/quran';
-import { fetchQuranPage } from './services/quranApi';
-import { AudioProvider, useQuranAudio } from './context/AudioContext';
-import { PWAUpdateToast } from './components/pwa/PWAUpdateToast';
-import { OfflineIndicator } from './components/pwa/OfflineIndicator';
-
-const INITIAL_KHATMA: KhatmaTracker = {
-  id: 'main-khatma',
-  name: 'ختمتي المباركة',
-  startDate: Date.now(),
-  targetDays: 30,
-  currentPage: 1,
-  dailyGoalPages: 20,
-  completed: false,
-  pagesReadHistory: {},
-};
+import { DesktopLayout } from './components/layout/DesktopLayout';
+import { AppModalsContainer } from './components/layout/AppModalsContainer';
+import { useThemePreferences } from './hooks/useThemePreferences';
+import { useQuranPageData } from './hooks/useQuranPageData';
+import { useBookmarks } from './hooks/useBookmarks';
+import { useKhatma } from './hooks/useKhatma';
+import { useAudioPlaybackSync } from './hooks/useAudioPlaybackSync';
 
 function MushafAppContent() {
-  // Mobile viewport detection
-  const [isMobile, setIsMobile] = useState<boolean>(() => {
-    return typeof window !== 'undefined' ? window.innerWidth < 768 : false;
-  });
-
-  // Persistence state loaders
-  const [currentPage, setCurrentPage] = useState<number>(() => {
-    const saved = localStorage.getItem('mushaf_current_page');
-    return saved ? Math.max(1, Math.min(604, parseInt(saved, 10))) : 1;
-  });
-
-  const [viewMode, setViewMode] = useState<ViewMode>(() => {
-    return typeof window !== 'undefined' && window.innerWidth >= 1024 ? 'spread' : 'single';
-  });
-
-  const [renderMode, setRenderMode] = useState<'image' | 'text'>('image');
-  const [theme, setTheme] = useState<PaperTheme>('madinah');
-  const [fontSize, setFontSize] = useState<number>(24);
-
-  // Quran Page data state
-  const [rightPageData, setRightPageData] = useState<QuranPageData | null>(null);
-  const [leftPageData, setLeftPageData] = useState<QuranPageData | null>(null);
-  const [isLoadingPage, setIsLoadingPage] = useState<boolean>(true);
-
-  // Ayah modal selection state
-  const [selectedAyah, setSelectedAyah] = useState<Ayah | null>(null);
-  const [isAyahDetailOpen, setIsAyahDetailOpen] = useState<boolean>(false);
-
-  // Unified Audio Context Hooks
-  const {
-    currentAyah: activeAudioAyah,
-    isPlaying: isPlayingAudio,
-    playAyah,
-    openAudioSheet,
-    registerNavigationHandlers,
-  } = useQuranAudio();
-
-  const activeAyahNumber = activeAudioAyah ? activeAudioAyah.number : null;
-
-  // Modals & Drawers state
-  const [isIndexOpen, setIsIndexOpen] = useState<boolean>(false);
-  const [isBookmarksOpen, setIsBookmarksOpen] = useState<boolean>(false);
-  const [isKhatmaOpen, setIsKhatmaOpen] = useState<boolean>(false);
-
-  // Bookmarks persistence
-  const [bookmarks, setBookmarks] = useState<Bookmark[]>(() => {
-    try {
-      const saved = localStorage.getItem('mushaf_bookmarks');
-      return saved ? JSON.parse(saved) : [];
-    } catch {
-      return [];
-    }
-  });
-
-  // Khatma tracker persistence
-  const [khatma, setKhatma] = useState<KhatmaTracker>(() => {
-    try {
-      const saved = localStorage.getItem('mushaf_khatma');
-      return saved ? JSON.parse(saved) : INITIAL_KHATMA;
-    } catch {
-      return INITIAL_KHATMA;
-    }
-  });
-
-  // Toast message
+  // Toast notifications state
   const [toastMessage, setToastMessage] = useState<string | null>(null);
-
   const showToast = (msg: string) => {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(null), 3000);
   };
 
-  // Sync Dark Theme with HTML Document Class for Tailwind & CSS dark: selectors
-  useEffect(() => {
-    localStorage.setItem('mushaf_theme', theme);
-    if (theme === 'dark') {
-      document.documentElement.classList.add('dark');
-      document.documentElement.style.colorScheme = 'dark';
-    } else {
-      document.documentElement.classList.remove('dark');
-      document.documentElement.style.colorScheme = 'light';
-    }
-  }, [theme]);
+  // User preferences & viewport configuration
+  const {
+    isMobile,
+    theme,
+    setTheme,
+    toggleTheme,
+    renderMode,
+    setRenderMode,
+    toggleRenderMode,
+    fontSize,
+    setFontSize,
+    changeFontSize,
+    viewMode,
+    setViewMode,
+    toggleViewMode,
+  } = useThemePreferences();
 
-  // Resize listener for viewport responsiveness
-  useEffect(() => {
-    const handleResize = () => {
-      const mobile = window.innerWidth < 768;
-      setIsMobile(mobile);
-      if (window.innerWidth < 1024 && viewMode === 'spread') {
-        setViewMode('single');
-      }
-    };
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, [viewMode]);
+  // Quran pagination & data caching engine
+  const {
+    currentPage,
+    handlePageChange,
+    rightPageData,
+    leftPageData,
+    isLoadingPage,
+  } = useQuranPageData(viewMode, isMobile);
 
-  // Save current page
-  useEffect(() => {
-    localStorage.setItem('mushaf_current_page', String(currentPage));
-  }, [currentPage]);
+  // Ayah detail selection modal state
+  const [selectedAyah, setSelectedAyah] = useState<Ayah | null>(null);
+  const [isAyahDetailOpen, setIsAyahDetailOpen] = useState<boolean>(false);
 
-  // Save bookmarks
-  useEffect(() => {
-    localStorage.setItem('mushaf_bookmarks', JSON.stringify(bookmarks));
-  }, [bookmarks]);
-
-  // Save khatma
-  useEffect(() => {
-    localStorage.setItem('mushaf_khatma', JSON.stringify(khatma));
-  }, [khatma]);
-
-  // Fetch Page Data whenever currentPage or viewMode changes
-  useEffect(() => {
-    let isMounted = true;
-    setIsLoadingPage(true);
-
-    const loadPages = async () => {
-      try {
-        const rightPage = await fetchQuranPage(currentPage);
-        let leftPage: QuranPageData | null = null;
-
-        // In spread view, if currentPage is odd and < 604, left page is currentPage + 1
-        if (viewMode === 'spread' && currentPage < 604 && !isMobile) {
-          leftPage = await fetchQuranPage(currentPage + 1);
-        }
-
-        if (isMounted) {
-          setRightPageData(rightPage);
-          setLeftPageData(leftPage);
-          setIsLoadingPage(false);
-
-          // Intelligent pre-fetching of next and previous pages for instant audio transition
-          if (currentPage < 604) {
-            fetchQuranPage(currentPage + 1).catch(() => {});
-            if (currentPage + 2 <= 604) {
-              fetchQuranPage(currentPage + 2).catch(() => {});
-            }
-          }
-          if (currentPage > 1) {
-            fetchQuranPage(currentPage - 1).catch(() => {});
-          }
-        }
-      } catch (err) {
-        console.error('Error fetching Quran pages:', err);
-        if (isMounted) setIsLoadingPage(false);
-      }
-    };
-
-    loadPages();
-    return () => {
-      isMounted = false;
-    };
-  }, [currentPage, viewMode, isMobile]);
-
-  // Page change handler
-  const handlePageChange = useCallback((newPage: number) => {
-    const clamped = Math.max(1, Math.min(604, newPage));
-    setCurrentPage(clamped);
-  }, []);
-
-  // Ayah click handler
   const handleAyahClick = (ayah: Ayah) => {
     setSelectedAyah(ayah);
     setIsAyahDetailOpen(true);
   };
 
-  // Play audio for specific ayah
-  const handlePlayAyahAudio = (ayah: Ayah) => {
-    setSelectedAyah(ayah);
-    playAyah(ayah);
-  };
+  // Bookmarks management
+  const {
+    bookmarks,
+    handleBookmarkCurrentPage,
+    handleAddBookmark,
+    handleDeleteBookmark,
+    isPageBookmarked,
+    isAyahBookmarked,
+  } = useBookmarks(showToast);
 
-  // Bookmark current page
-  const handleBookmarkCurrentPage = () => {
-    const pageNum = currentPage;
-    const existingIndex = bookmarks.findIndex((b) => b.pageNumber === pageNum);
+  // Khatma progress tracker
+  const {
+    khatma,
+    updateKhatmaDays,
+    recordDailyProgress,
+    updateKhatma,
+  } = useKhatma(showToast);
 
-    if (existingIndex >= 0) {
-      setBookmarks(bookmarks.filter((_, i) => i !== existingIndex));
-      showToast(`تمت إزالة علامة القراءة للصفحة ${pageNum}`);
-    } else {
-      const surahName = rightPageData?.surahNames[0] || 'الفاتحة';
-      const firstAyah = rightPageData?.ayahs[0];
-      const newBookmark: Bookmark = {
-        id: `bm-${Date.now()}`,
-        pageNumber: pageNum,
-        surahNumber: firstAyah?.surahNumber || 1,
-        ayahNumberInSurah: firstAyah?.numberInSurah || 1,
-        surahName,
-        ayahTextSnippet: firstAyah?.text || '',
-        createdAt: Date.now(),
-      };
-      setBookmarks([newBookmark, ...bookmarks]);
-      showToast(`تم حفظ الصفحة ${pageNum} في الإشارات المرجعية`);
-    }
-  };
-
-  // Add custom bookmark from Ayah modal
-  const handleAddBookmark = (ayah: Ayah, note?: string, color?: string) => {
-    const newBookmark: Bookmark = {
-      id: `bm-${Date.now()}`,
-      pageNumber: ayah.page,
-      surahNumber: ayah.surahNumber,
-      ayahNumberInSurah: ayah.numberInSurah,
-      surahName: ayah.surahName,
-      ayahTextSnippet: ayah.text,
-      note,
-      color,
-      createdAt: Date.now(),
-    };
-    setBookmarks([newBookmark, ...bookmarks]);
-    showToast(`تم حفظ الآية ${ayah.numberInSurah} من سورة ${ayah.surahName}`);
-  };
-
-  // Delete bookmark
-  const handleDeleteBookmark = (id: string) => {
-    setBookmarks(bookmarks.filter((b) => b.id !== id));
-    showToast('تم حذف الإشارة');
-  };
-
-  // Audio next & prev handlers registered to central audio engine with seamless continuous playback across pages
-  useEffect(() => {
-    registerNavigationHandlers({
-      onNext: async () => {
-        if (!activeAudioAyah || !rightPageData) return;
-        const allCurrentAyahs = [...rightPageData.ayahs, ...(leftPageData?.ayahs || [])];
-        const curIdx = allCurrentAyahs.findIndex((a) => a.number === activeAudioAyah.number);
-
-        if (curIdx >= 0 && curIdx < allCurrentAyahs.length - 1) {
-          const nextA = allCurrentAyahs[curIdx + 1];
-          playAyah(nextA);
-        } else if (currentPage < 604) {
-          // Last ayah on the current page/spread: advance page and continue playing first ayah of next page
-          const nextPageNum = (viewMode === 'spread' && !isMobile) ? currentPage + 2 : currentPage + 1;
-          if (nextPageNum <= 604) {
-            handlePageChange(nextPageNum);
-            try {
-              const nextPage = await fetchQuranPage(nextPageNum);
-              if (nextPage.ayahs && nextPage.ayahs.length > 0) {
-                playAyah(nextPage.ayahs[0]);
-              }
-            } catch (err) {
-              console.error('Failed to continue audio playback on next page:', err);
-            }
-          }
-        }
-      },
-      onPrev: async () => {
-        if (!activeAudioAyah || !rightPageData) return;
-        const allCurrentAyahs = [...rightPageData.ayahs, ...(leftPageData?.ayahs || [])];
-        const curIdx = allCurrentAyahs.findIndex((a) => a.number === activeAudioAyah.number);
-
-        if (curIdx > 0) {
-          const prevA = allCurrentAyahs[curIdx - 1];
-          playAyah(prevA);
-        } else if (currentPage > 1) {
-          // First ayah on current page/spread: go back to previous page and play its last ayah
-          const prevPageNum = (viewMode === 'spread' && !isMobile)
-            ? Math.max(1, currentPage - 2)
-            : currentPage - 1;
-
-          if (prevPageNum >= 1) {
-            handlePageChange(prevPageNum);
-            try {
-              // In spread mode, the previous ayah is the last ayah of the left page (prevPageNum + 1) if it exists
-              let targetPage = prevPageNum;
-              if (viewMode === 'spread' && !isMobile && prevPageNum < 604) {
-                targetPage = prevPageNum + 1;
-              }
-              const prevPage = await fetchQuranPage(targetPage);
-              if (prevPage.ayahs && prevPage.ayahs.length > 0) {
-                playAyah(prevPage.ayahs[prevPage.ayahs.length - 1]);
-              }
-            } catch (err) {
-              console.error('Failed to play previous audio on prev page:', err);
-            }
-          }
-        }
-      },
-    });
-  }, [
+  // Audio recitation playback synchronization
+  const {
     activeAudioAyah,
+    activeAyahNumber,
+    isPlayingAudio,
+    playAyah,
+    openAudioSheet,
+    handlePlayAyahAudio,
+  } = useAudioPlaybackSync({
     rightPageData,
     leftPageData,
     currentPage,
     viewMode,
     isMobile,
-    playAyah,
-    handlePageChange,
-    registerNavigationHandlers,
-  ]);
+    onPageChange: handlePageChange,
+    onSelectAyah: setSelectedAyah,
+  });
 
-  const isCurrentPageBookmarked = bookmarks.some((b) => b.pageNumber === currentPage);
+  // Desktop Drawers & Modals state
+  const [isIndexOpen, setIsIndexOpen] = useState<boolean>(false);
+  const [isBookmarksOpen, setIsBookmarksOpen] = useState<boolean>(false);
+  const [isKhatmaOpen, setIsKhatmaOpen] = useState<boolean>(false);
 
-  // If Mobile Viewport: Render the Dedicated Mobile Application Shell
+  // Dedicated Mobile Shell for Handheld Viewports
   if (isMobile) {
     return (
       <div className="w-full min-h-screen overflow-x-hidden">
@@ -335,7 +109,7 @@ function MushafAppContent() {
           pageData={rightPageData}
           loading={isLoadingPage}
           theme={theme}
-          onToggleTheme={() => setTheme(theme === 'dark' ? 'madinah' : 'dark')}
+          onToggleTheme={toggleTheme}
           onChangeTheme={setTheme}
           renderMode={renderMode}
           onChangeRenderMode={setRenderMode}
@@ -348,27 +122,12 @@ function MushafAppContent() {
           bookmarks={bookmarks}
           onAddBookmark={handleAddBookmark}
           onDeleteBookmark={handleDeleteBookmark}
-          onTogglePageBookmark={handleBookmarkCurrentPage}
-          isPageBookmarked={isCurrentPageBookmarked}
-          isAyahBookmarked={bookmarks.some(
-            (b) =>
-              b.surahNumber === selectedAyah?.surahNumber &&
-              b.ayahNumberInSurah === selectedAyah?.numberInSurah
-          )}
+          onTogglePageBookmark={() => handleBookmarkCurrentPage(currentPage, rightPageData)}
+          isPageBookmarked={isPageBookmarked(currentPage)}
+          isAyahBookmarked={isAyahBookmarked(selectedAyah)}
           khatma={khatma}
-          onUpdateKhatmaDays={(days) => setKhatma({ ...khatma, targetDays: days })}
-          onRecordDailyProgress={(page) => {
-            const today = new Date().toISOString().split('T')[0];
-            setKhatma({
-              ...khatma,
-              currentPage: page,
-              pagesReadHistory: {
-                ...khatma.pagesReadHistory,
-                [today]: page,
-              },
-            });
-            showToast(`تم تثبيت صفحة ${page} كإنجاز اليوم`);
-          }}
+          onUpdateKhatmaDays={updateKhatmaDays}
+          onRecordDailyProgress={recordDailyProgress}
         />
 
         {/* Toast Notification */}
@@ -381,22 +140,22 @@ function MushafAppContent() {
     );
   }
 
-  // Desktop View
+  // Desktop & Tablet Presentation Flow
   return (
-    <div
-      className={`min-h-screen w-full flex flex-col font-sans transition-colors duration-300 ${
-        theme === 'dark' ? 'bg-[#0e1217] text-slate-100' : 'bg-[#f4ede1] text-[#1a1a1a]'
-      }`}
-      style={{
-        backgroundImage:
-          theme === 'dark'
-            ? 'radial-gradient(#1e293b 1px, transparent 1px)'
-            : 'radial-gradient(#c5a059 0.75px, #f4ede1 0.75px)',
-        backgroundSize: '24px 24px',
-      }}
-    >
-      {/* Top Main Navigation */}
-      <HeaderNav
+    <>
+      <DesktopLayout
+        theme={theme}
+        renderMode={renderMode}
+        viewMode={viewMode}
+        fontSize={fontSize}
+        currentPage={currentPage}
+        bookmarksCount={bookmarks.length}
+        rightPageData={rightPageData}
+        leftPageData={leftPageData}
+        isLoadingPage={isLoadingPage}
+        activeAyahNumber={activeAyahNumber}
+        isBookmarked={isPageBookmarked(currentPage)}
+        toastMessage={toastMessage}
         onOpenIndex={() => setIsIndexOpen(true)}
         onOpenBookmarks={() => setIsBookmarksOpen(true)}
         onOpenKhatma={() => setIsKhatmaOpen(true)}
@@ -407,113 +166,39 @@ function MushafAppContent() {
             playAyah(rightPageData.ayahs[0]);
           }
         }}
-        viewMode={viewMode}
-        onToggleViewMode={() => setViewMode(viewMode === 'spread' ? 'single' : 'spread')}
-        renderMode={renderMode}
-        onToggleRenderMode={() => setRenderMode(renderMode === 'image' ? 'text' : 'image')}
-        theme={theme}
-        onToggleTheme={() => setTheme(theme === 'dark' ? 'madinah' : 'dark')}
-        fontSize={fontSize}
-        onChangeFontSize={(delta) => setFontSize(Math.max(16, Math.min(36, fontSize + delta)))}
-        currentPage={currentPage}
-        onJumpToPage={handlePageChange}
-        totalPages={604}
-        bookmarksCount={bookmarks.length}
-      />
-
-      {/* Main Mushaf Content Container */}
-      <main className="flex-1 flex flex-col items-center justify-center p-2 sm:p-4 md:p-6 max-w-7xl mx-auto w-full">
-        {isLoadingPage || !rightPageData ? (
-          <div className="h-96 flex flex-col items-center justify-center space-y-4">
-            <div className="w-12 h-12 border-4 border-[#c5a059] border-t-transparent rounded-full animate-spin"></div>
-            <p className="font-reem text-[#8b6e31] dark:text-[#e9d19a] text-sm">
-              جاري فتح صفحة المصحف الشريف...
-            </p>
-          </div>
-        ) : (
-          <MushafBook
-            rightPageData={rightPageData}
-            leftPageData={leftPageData}
-            currentPage={currentPage}
-            totalPages={604}
-            viewMode={viewMode}
-            theme={theme}
-            renderMode={renderMode}
-            fontSize={fontSize}
-            activeAyahNumber={activeAyahNumber}
-            onPageChange={handlePageChange}
-            onAyahClick={handleAyahClick}
-            onBookmarkCurrentPage={handleBookmarkCurrentPage}
-            isBookmarked={isCurrentPageBookmarked}
-            onOpenAudio={() => {
-              if (rightPageData.ayahs.length > 0) {
-                handlePlayAyahAudio(rightPageData.ayahs[0]);
-              }
-            }}
-            onOpenIndex={() => setIsIndexOpen(true)}
-          />
-        )}
-      </main>
-
-      {/* Toast Notification */}
-      {toastMessage && (
-        <div className="fixed bottom-20 left-1/2 -translate-x-1/2 z-50 px-5 py-2.5 bg-[#1e4d2b] text-[#fdfaf2] border-2 border-[#c5a059] rounded-xl shadow-2xl font-reem text-xs sm:text-sm font-bold animate-bounce">
-          {toastMessage}
-        </div>
-      )}
-
-      {/* Drawers & Modals */}
-      <SurahIndexDrawer
-        isOpen={isIndexOpen}
-        onClose={() => setIsIndexOpen(false)}
-        onSelectSurah={handlePageChange}
-        onSelectJuz={handlePageChange}
-        onSelectAyah={(page, ayahNum) => {
-          handlePageChange(page);
-        }}
-        currentPage={currentPage}
-      />
-
-      <AyahDetailModal
-        ayah={selectedAyah}
-        isOpen={isAyahDetailOpen}
-        onClose={() => setIsAyahDetailOpen(false)}
+        onToggleViewMode={toggleViewMode}
+        onToggleRenderMode={toggleRenderMode}
+        onToggleTheme={toggleTheme}
+        onChangeFontSize={changeFontSize}
+        onPageChange={handlePageChange}
+        onAyahClick={handleAyahClick}
+        onBookmarkCurrentPage={() => handleBookmarkCurrentPage(currentPage, rightPageData)}
         onPlayAyahAudio={handlePlayAyahAudio}
-        isPlaying={isPlayingAudio && activeAyahNumber === selectedAyah?.number}
-        onAddBookmark={handleAddBookmark}
-        isBookmarked={bookmarks.some(
-          (b) =>
-            b.surahNumber === selectedAyah?.surahNumber &&
-            b.ayahNumberInSurah === selectedAyah?.numberInSurah
-        )}
       />
 
-      <KhatmaTrackerModal
-        isOpen={isKhatmaOpen}
-        onClose={() => setIsKhatmaOpen(false)}
+      <AppModalsContainer
         currentPage={currentPage}
-        onJumpToPage={handlePageChange}
+        onPageChange={handlePageChange}
+        isIndexOpen={isIndexOpen}
+        onCloseIndex={() => setIsIndexOpen(false)}
+        selectedAyah={selectedAyah}
+        isAyahDetailOpen={isAyahDetailOpen}
+        onCloseAyahDetail={() => setIsAyahDetailOpen(false)}
+        onPlayAyahAudio={handlePlayAyahAudio}
+        isPlayingAudio={isPlayingAudio}
+        activeAyahNumber={activeAyahNumber}
+        onAddBookmark={handleAddBookmark}
+        isAyahBookmarked={isAyahBookmarked(selectedAyah)}
+        isKhatmaOpen={isKhatmaOpen}
+        onCloseKhatma={() => setIsKhatmaOpen(false)}
         khatma={khatma}
-        onUpdateKhatma={(updated) => setKhatma({ ...khatma, ...updated })}
-      />
-
-      <BookmarksDrawer
-        isOpen={isBookmarksOpen}
-        onClose={() => setIsBookmarksOpen(false)}
+        onUpdateKhatma={updateKhatma}
+        isBookmarksOpen={isBookmarksOpen}
+        onCloseBookmarks={() => setIsBookmarksOpen(false)}
         bookmarks={bookmarks}
-        onSelectBookmark={(page) => {
-          handlePageChange(page);
-        }}
         onDeleteBookmark={handleDeleteBookmark}
       />
-
-      {/* Bottom Floating Audio Reciter Bar */}
-      <AudioPlayerBar />
-
-      {/* PWA System Update & Offline Notifications */}
-      <PWAUpdateToast />
-      <OfflineIndicator />
-    </div>
+    </>
   );
 }
 

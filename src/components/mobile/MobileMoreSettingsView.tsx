@@ -17,6 +17,7 @@ import { KhatmaTracker, PaperTheme, Reciter } from '../../types/quran';
 import { RECITERS } from '../../data/quranMetadata';
 import { toArabicNumerals } from '../../services/quranApi';
 import { PWAInstallButton } from '../pwa/PWAInstallButton';
+import { OfflineManager } from '../pwa/OfflineManager';
 
 interface MobileMoreSettingsViewProps {
   theme: PaperTheme;
@@ -271,6 +272,9 @@ export const MobileMoreSettingsView: React.FC<MobileMoreSettingsViewProps> = ({
               </button>
             </div>
           </div>
+
+          {/* Offline Manager for Reading Tab */}
+          <OfflineManager />
 
           {/* Font Size Slider (if text mode) */}
           {renderMode === 'text' && (

@@ -20,5 +20,8 @@ export function fixArabicText(text: string): string {
   // Remove irregular zero-width joiners/spaces if any
   cleaned = cleaned.replace(/[\u200B-\u200D\uFEFF]/g, '');
 
+  // Collapse multiple whitespaces
+  cleaned = cleaned.replace(/\s+/g, ' ');
+
   return cleaned.trim();
 }
